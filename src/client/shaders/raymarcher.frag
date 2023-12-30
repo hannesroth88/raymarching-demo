@@ -1,24 +1,7 @@
-precision highp float;
-precision highp int;
-
 // Your ray marching shader code here
 
 // Declare iResolution
 uniform vec2 iResolution;
-
-// Declare additional inputs
-uniform float iTime;
-uniform float iTimeDelta;
-uniform float iFrameRate;
-uniform int iFrame;
-uniform float iChannelTime[4];
-uniform vec3 iChannelResolution[4];
-uniform vec4 iMouse;
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel1;
-uniform sampler2D iChannel2;
-uniform sampler2D iChannel3;
-uniform vec4 iDate;
 
 // Function to calculate the distance to a sphere
 float map(vec3 p) {
@@ -30,7 +13,7 @@ void main() {
     vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution.xy) / iResolution.y;
 
     // Initialization
-    vec3 ro = vec3(0, 0, -3);         // ray origin
+    vec3 ro = vec3(0, 0, -2);         // ray origin
     vec3 rd = normalize(vec3(uv, 1)); // ray direction
     vec3 col = vec3(0);               // final pixel color
 
