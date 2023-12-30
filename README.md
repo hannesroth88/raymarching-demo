@@ -22,5 +22,9 @@ npm install
 ```bash
 npm run dev
 ```
-
+ 
 6. Visit [http://127.0.0.1:8080](http://127.0.0.1:8080)
+
+### Sources
+Tutorial from 
+https://www.youtube.com/watch?v=f4s1h2YETNY

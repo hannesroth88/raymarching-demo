@@ -1,40 +1,44 @@
-// Your ray marching shader code here
+
 
 // Declare iResolution
 uniform vec2 iResolution;
+// Declare additional inputs
+uniform float iTime;
+uniform float iTimeDelta;
+uniform float iFrameRate;
+uniform int iFrame;
+uniform float iChannelTime[4];
+uniform vec3 iChannelResolution[4];
+uniform vec4 iMouse;
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D iChannel2;
+uniform sampler2D iChannel3;
+uniform vec4 iDate;
 
-// Function to calculate the distance to a sphere
-float map(vec3 p) {
-    return length(p) - 1.0; // distance to a sphere of radius 1
+// palette function
+vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+    return a + b * cos(6.28318 * (c * t + d));
 }
 
-// Fragment shader
+// Fragment shader main function
 void main() {
     vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution.xy) / iResolution.y;
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
 
-    // Initialization
-    vec3 ro = vec3(0, 0, -2);         // ray origin
-    vec3 rd = normalize(vec3(uv, 1)); // ray direction
-    vec3 col = vec3(0);               // final pixel color
+    for(float i = 0.0; i < 3.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+        float d = length(uv) * exp(-length(uv0));
 
-    float t = 0.; // total distance travelled
+        vec3 col = palette(length(uv0) + i + iTime * 0.4, vec3(0.5), vec3(0.5), vec3(1.0), vec3(0.0, 0.33, 0.2));
 
-    // Raymarching
-    for(int i = 0; i < 80; i++) {
-        vec3 p = ro + rd * t;     // position along the ray
+        d = sin(d * 8. + iTime) / 8.;
+        d = abs(d);
+        // d = 0.06 / d;
+        d = pow(0.01 / d, 1.2);
 
-        float d = map(p);         // current distance to the scene
-
-        t += d;                   // "march" the ray
-
-        if(d < .001)
-            break;      // early stop if close enough
-        if(t > 100.)
-            break;      // early stop if too far
+        finalColor += col * d;
     }
-
-    // Coloring
-    col = vec3(t * .2);           // color based on distance
-
-    gl_FragColor = vec4(col, 1);
+    gl_FragColor = vec4(finalColor, 1.0);
 }
