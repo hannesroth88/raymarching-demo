@@ -9,7 +9,11 @@ module.exports = {
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
-        ],
+            {
+                test: /\.(glsl|vs|fs|frag|vert)$/,
+                loader: 'ts-shader-loader'
+            }
+        ]
     },
     resolve: {
         alias: {
