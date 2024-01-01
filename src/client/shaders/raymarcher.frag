@@ -33,7 +33,7 @@ mat2 rot2D(float a){
 }
 // 2D rotation function
 mat2 rot2DCustom(float a){
-    return mat2(cos(a),-sin(a),sin(a),cos(a));
+    return mat2(fract(a),-fract(a),fract(a),fract(a));
 }
 
 // Custom gradient - https://iquilezles.org/articles/palettes/
@@ -41,15 +41,6 @@ vec3 palette(float t,vec3 a,vec3 b,vec3 c,vec3 d){
     return a+b*cos(6.28318*(c*t+d));
 }
 
-float object(vec3 p,float r){
-    const float k=sqrt(3.);
-    p.x=abs(p.x)-r;
-    p.y=p.y+r/k;
-    if(p.x+k*p.y>0.)
-    p=vec3(p.x-k*p.y,-k*p.x-p.y,0)/2.;
-    p.x-=clamp(p.x,-2.*r,0.);
-    return-length(p)*sign(p.y);
-}
 
 // Octahedron SDF - https://iquilezles.org/articles/distfunctions/
 float sdOctahedron(vec3 p,float s){
@@ -67,6 +58,19 @@ float sdSegment(vec3 p,vec3 a,vec3 b){
     return length(pa-ba*h);
 }
 
+float sdUnevenCapsule( vec2 p ){
+    float r1 = .15;
+    float r2 = .05;
+    float h  = .25;
+    p.x = abs(p.x);
+    float b = (r1-r2)/h;
+    float a = sqrt(1.0-b*b);
+    float k = dot(p,vec2(-b,a));
+    if( k < 0.0 ) return length(p) - r1;
+    if( k > a*h ) return length(p-vec2(0.0,h)) - r2;
+    return dot(p, vec2(a,b) ) - r1;
+}
+
 // Scene distance
 float map(vec3 p){
     p.z+=iTime*.4;// Forward movement
@@ -75,10 +79,11 @@ float map(vec3 p){
     p.xy=fract(p.xy)-.5;// spacing: 1
     p.z=mod(p.z,.25)-.125;// spacing: .25
     
-    // float returnObject = sdOctahedron(p,.5);
-    // float returnObject = sdCircle(p,.15);
-    // float returnObject=sdSegment(p,vec3(.15),vec3(.05));
-    float returnObject = max(sdOctahedron(p,.4),sdCircle(p,.2));
+    // float returnObject = sdOctahedron(p,.4);
+    // float returnObject = sdCircle(p,0.15);
+    // float returnObject = sdSegment(p,vec3(.4),vec3(.3));
+    float returnObject = sdUnevenCapsule(p.xy);
+    // float returnObject = max(sdOctahedron(p,.4),sdUnevenCapsule(p.xy));
     
     return returnObject;
 }
@@ -98,10 +103,10 @@ void main(){
     float t=0.;// total distance travelled
     
     int i;// Raymarching
-    for(i=0;i<80;i++){
+    for(i=0;i<100;i++){
         vec3 p=ro+rd*t;// position along the ray
         
-        p.xy*=rot2D(t*.15*m.x);// rotate ray around z-axis
+        p.xy*=rot2DCustom(t*.15*m.x);// rotate ray around z-axis
         
         p.y+=sin(t*(m.y+1.)*.5)*.35;// wiggle ray
         
