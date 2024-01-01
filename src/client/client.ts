@@ -13,6 +13,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera, renderer.domElement)
+let mouseClickToggle = true;
 
 // Shader code
 const rayMarchingShader = {
@@ -24,7 +25,7 @@ const rayMarchingShader = {
             value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
         iTime: { type: 'f', value: 0.0 },
-        iMouse: { type: 'v4', value: new THREE.Vector4() },
+        iMouse: { type: 'v4', value: new THREE.Vector4(1,1) },
     },
 }
 
@@ -43,11 +44,17 @@ function onWindowResize() {
     render()
 }
 
-
+// pass mouse position to x and y axis
 document.onmousemove = function(e) {
     material.uniforms.iMouse.value.x = e.pageX / window.innerWidth;
     material.uniforms.iMouse.value.y = e.pageY / window.innerHeight;
   }
+
+// pass mouse click to z axis
+document.onclick = function(e) {
+    mouseClickToggle = !mouseClickToggle;
+    material.uniforms.iMouse.value.z = mouseClickToggle ? 0 : 1;
+}
 
 function animate() {
     requestAnimationFrame(animate)
