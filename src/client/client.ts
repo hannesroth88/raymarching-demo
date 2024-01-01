@@ -24,16 +24,7 @@ const rayMarchingShader = {
             value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
         iTime: { type: 'f', value: 0.0 },
-        iTimeDelta: { type: 'f', value: 0.0 },
-        iFrameRate: { type: 'f', value: 60.0 },
-        iFrame: { type: 'i', value: 0 },
-        iChannelTime: { type: 'fv1', value: [0.0, 0.0, 0.0, 0.0] },
-        iChannelResolution: {
-            type: 'v3v',
-            value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()],
-        },
         iMouse: { type: 'v4', value: new THREE.Vector4() },
-        iDate: { type: 'v4', value: new THREE.Vector4() }, // You need to set the values for year, month, day, time
     },
 }
 
@@ -47,8 +38,16 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
+    material.uniforms.iResolution.value.x = renderer.domElement.width
+    material.uniforms.iResolution.value.y = renderer.domElement.height
     render()
 }
+
+
+document.onmousemove = function(e) {
+    material.uniforms.iMouse.value.x = e.pageX / window.innerWidth;
+    material.uniforms.iMouse.value.y = e.pageY / window.innerHeight;
+  }
 
 function animate() {
     requestAnimationFrame(animate)
