@@ -20,10 +20,18 @@ uniform sampler2D iChannel2;
 uniform sampler2D iChannel3;
 uniform vec4 iDate;
 
+
+// Distance function for a sphere
+float sdSphere(vec3 p, float r) {
+    return length(p) - r;
+}
+
 // Function to calculate the distance to a sphere
 float map(vec3 p) {
-    return length(p) - 1.0; // distance to a sphere of radius 1
-}
+    vec3 spherePos = vec3(sin(iTime), 0, 0);
+    float sphere = sdSphere(p - spherePos, 1.0);
+    return sphere; // distance to a sphere of radius 1
+} 
 
 // Fragment shader
 void main() {
