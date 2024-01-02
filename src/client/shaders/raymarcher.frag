@@ -79,12 +79,12 @@ float map(vec3 p){
     p.xy=fract(p.xy)-.5;// spacing: 1
     p.z=mod(p.z,.25)-.125;// spacing: .25
     
-    // float returnObject = sdOctahedron(p,.4);
-    // float returnObject = sdCircle(p,0.15);
-    // float returnObject = sdSegment(p,vec3(.4),vec3(.3));
-    // float returnObject = sdUnevenCapsule(p.xy);
-    // float returnObject = max(sdOctahedron(p,.4),sdUnevenCapsule(p.xy));
-    float returnObject = max(sdOctahedron(p,.002),sdCircle(p,0.03));
+    float octahedron = sdOctahedron(p,.002);
+    float circle = sdCircle(p,0.03);
+    float segment = sdSegment(p,vec3(.4),vec3(.3));
+    float unevenCapsule = sdUnevenCapsule(p.xy);
+    // float returnObject = max(octahedron,unevenCapsule);
+    float returnObject = max(octahedron,circle);
     
     return returnObject;
 }
@@ -92,35 +92,44 @@ float map(vec3 p){
 void main(){
     // vec2 uv=(gl_FragCoord.xy*2.-iResolution.xy)/iResolution.y*iMouse.x*10.;
     vec2 uv=(gl_FragCoord.xy*2.-iResolution.xy)/iResolution.y*10.;
-    vec2 m=(iMouse.xy*2.-iResolution.xy)/iResolution.y;
+    vec2 m=(iMouse.xy*500.-iResolution.xy)/iResolution.y;
     
     // Default circular motion if mouse not clicked
-    if(iMouse.z<=0.)m=vec2(cos(iTime*.2),sin(iTime*.2));
+    if(iMouse.z<=0.)
+    m=vec2(cos(iTime*0.2),sin(iTime*.2));
     
     // Initialization
     vec3 ro=vec3(0,0,-3);// ray origin
     vec3 rd=normalize(vec3(uv,1));// ray direction
     vec3 col=vec3(0);// final pixel color
     
-    float t=0.;// total distance travelled
+    float tDist=0.;// total distance travelled
     
     int i;// Raymarching
     for(i=0;i<100;i++){
-        vec3 p=ro+rd*t;// position along the ray
+        vec3 p=ro+rd*tDist;// position along the ray
         
-        p.xy*=rot2DCustom(t*.15*m.x);// rotate ray around z-axis
+
+        p.xy*=rot2DCustom(tDist*.15*m.x);// rotate ray around z-axis
         
-        p.y+=sin(t*(m.y+1.)*.5)*.35;// wiggle ray
+        
+
+        p.y+=sin(tDist*(m.y+1.)*.5)*.35;// wiggle ray
         
         float d=map(p);// current distance to the scene
+
+        // create a cube
+        // vec3 q = p - vec3(1.0, 1.0, 0.0);
+        // float circle = sdCircle(q,0.05);
+        // d = max(d,circle);
+
+        tDist+=d;// "march" the ray
         
-        t+=d;// "march" the ray
-        
-        if(d<.001||t>100.)break;// early stop
+        if(d<.001||tDist>100.)break;// early stop
     }
     
     // Coloring
-    col=palette(t*.104+float(i)*.005,vec3(.5),vec3(.5),vec3(1),vec3(.7529,.5686,.5333));
+    col=palette(tDist*0.104+float(i)*.005,vec3(.5),vec3(.5),vec3(1),vec3(.7529,.5686,.5333));
     
     gl_FragColor=vec4(col,1);
 }
