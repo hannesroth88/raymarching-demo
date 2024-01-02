@@ -3,8 +3,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import raymarcherFragment from './shaders/raymarcher.frag'
 import raymarcherVertex from './shaders/raymarcher.vert'
 
+// @ts-ignore
+import skull from "../assets/img/skull5.png";
+console.log("skull: ", skull);
+
 const scene = new THREE.Scene()
-const startTime = Date.now();
+const startTime = Date.now()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500)
 camera.position.z = 1
 
@@ -13,7 +17,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera, renderer.domElement)
-let mouseClickToggle = true;
+let mouseClickToggle = true
 
 // Shader code
 const rayMarchingShader = {
@@ -25,7 +29,7 @@ const rayMarchingShader = {
             value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
         iTime: { type: 'f', value: 0.0 },
-        iMouse: { type: 'v4', value: new THREE.Vector4(1,1) },
+        iMouse: { type: 'v4', value: new THREE.Vector4(1, 1) },
     },
 }
 
@@ -33,6 +37,23 @@ const material = new THREE.ShaderMaterial(rayMarchingShader)
 const geometry = new THREE.PlaneGeometry(2, 2)
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
+
+// Load the texture
+const loader = new THREE.TextureLoader()
+loader.load(skull, (texture) => {
+    // Create the sprite material from png
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 1,
+    })
+
+    // Create the sprite and add it to the scene
+    const sprite = new THREE.Sprite(material)
+    sprite.position.set(0, 0, 0) // Set the position of the sprite
+    sprite.scale.set(1, 1, 1) // Set the size of the sprite
+    scene.add(sprite)
+})
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -45,23 +66,23 @@ function onWindowResize() {
 }
 
 // pass mouse position to x and y axis
-document.onmousemove = function(e) {
-    material.uniforms.iMouse.value.x = e.pageX / window.innerWidth;
-    material.uniforms.iMouse.value.y = e.pageY / window.innerHeight;
-  }
+document.onmousemove = function (e) {
+    material.uniforms.iMouse.value.x = e.pageX / window.innerWidth
+    material.uniforms.iMouse.value.y = e.pageY / window.innerHeight
+}
 
 // pass mouse click to z axis
-document.onclick = function(e) {
-    mouseClickToggle = !mouseClickToggle;
-    material.uniforms.iMouse.value.z = mouseClickToggle ? 0 : 1;
+document.onclick = function (e) {
+    mouseClickToggle = !mouseClickToggle
+    material.uniforms.iMouse.value.z = mouseClickToggle ? 0 : 1
 }
 
 function animate() {
     requestAnimationFrame(animate)
-    
+
     // Update  iTime
-    const elapsedTime = (Date.now() - startTime) / 1000; // Convert to seconds    
-    material.uniforms.iTime.value = elapsedTime;
+    const elapsedTime = (Date.now() - startTime) / 1000 // Convert to seconds
+    material.uniforms.iTime.value = elapsedTime
 
     controls.update()
 

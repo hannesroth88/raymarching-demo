@@ -33,7 +33,7 @@ mat2 rot2D(float a){
 }
 // 2D rotation function
 mat2 rot2DCustom(float a){
-    return mat2(fract(a),-fract(a),fract(a),fract(a));
+    return mat2(tan(a),-cos(a),fract(a),sin(a));
 }
 
 // Custom gradient - https://iquilezles.org/articles/palettes/
@@ -73,7 +73,7 @@ float sdUnevenCapsule( vec2 p ){
 
 // Scene distance
 float map(vec3 p){
-    p.z+=iTime*.4;// Forward movement
+    p.z+=iTime*1.;// Forward movement
     
     // Space repetition
     p.xy=fract(p.xy)-.5;// spacing: 1
@@ -82,14 +82,16 @@ float map(vec3 p){
     // float returnObject = sdOctahedron(p,.4);
     // float returnObject = sdCircle(p,0.15);
     // float returnObject = sdSegment(p,vec3(.4),vec3(.3));
-    float returnObject = sdUnevenCapsule(p.xy);
+    // float returnObject = sdUnevenCapsule(p.xy);
     // float returnObject = max(sdOctahedron(p,.4),sdUnevenCapsule(p.xy));
+    float returnObject = max(sdOctahedron(p,.002),sdCircle(p,0.03));
     
     return returnObject;
 }
 
 void main(){
-    vec2 uv=(gl_FragCoord.xy*2.-iResolution.xy)/iResolution.y*iMouse.x;
+    // vec2 uv=(gl_FragCoord.xy*2.-iResolution.xy)/iResolution.y*iMouse.x*10.;
+    vec2 uv=(gl_FragCoord.xy*2.-iResolution.xy)/iResolution.y*10.;
     vec2 m=(iMouse.xy*2.-iResolution.xy)/iResolution.y;
     
     // Default circular motion if mouse not clicked
@@ -118,7 +120,7 @@ void main(){
     }
     
     // Coloring
-    col=palette(t*.04+float(i)*.005,vec3(.5),vec3(.5),vec3(1),vec3(.7529,.5686,.5333));
+    col=palette(t*.104+float(i)*.005,vec3(.5),vec3(.5),vec3(1),vec3(.7529,.5686,.5333));
     
     gl_FragColor=vec4(col,1);
 }
